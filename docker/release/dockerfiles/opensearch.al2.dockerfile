@@ -15,9 +15,9 @@
 
 ########################### Stage 0 ########################
 FROM public.ecr.aws/amazonlinux/amazonlinux:2 AS linux_stage_0
-USER root
-ARG UID=1000
-ARG GID=1000
+
+ARG UID=1001
+ARG GID=1001
 ARG VERSION
 ARG TEMP_DIR=/tmp/opensearch
 ARG OPENSEARCH_HOME=/usr/share/opensearch
@@ -51,14 +51,14 @@ RUN ls -l $TEMP_DIR && \
     cp -v $TEMP_DIR/log4j2.properties $TEMP_DIR/opensearch.yml $OPENSEARCH_PATH_CONF/ && \
     ls -l $OPENSEARCH_HOME && \
     rm -rf $TEMP_DIR
-USER 1000
+
 
 ########################### Stage 1 ########################
 # Copy working directory to the actual release docker images
 FROM public.ecr.aws/amazonlinux/amazonlinux:2
-USER root
-ARG UID=1000
-ARG GID=1000
+
+ARG UID=1001
+ARG GID=1001
 ARG OPENSEARCH_HOME=/usr/share/opensearch
 
 # Update packages
@@ -85,7 +85,7 @@ ENV PATH=$PATH:$JAVA_HOME/bin:$OPENSEARCH_HOME/bin
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$OPENSEARCH_HOME/plugins/opensearch-knn/lib"
 
 # Change user
-USER 1000
+USER $UID
 
 # Setup OpenSearch
 # Disable security demo installation during image build, and allow user to disable during startup of the container
