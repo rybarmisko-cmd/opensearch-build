@@ -16,8 +16,8 @@
 ########################### Stage 0 ########################
 FROM public.ecr.aws/amazonlinux/amazonlinux:2 AS linux_stage_0
 
-ARG UID=1001
-ARG GID=1001
+ARG UID=1000
+ARG GID=1000
 ARG VERSION
 ARG TEMP_DIR=/tmp/opensearch
 ARG OPENSEARCH_HOME=/usr/share/opensearch
@@ -34,6 +34,7 @@ RUN yum update -y && yum install -y tar gzip shadow-utils which && yum clean all
 RUN groupadd -g $GID opensearch && \
     adduser -u $UID -g $GID -d $OPENSEARCH_HOME opensearch && \
     mkdir $TEMP_DIR
+    sudo chown -R 1000:1000 /usr/share/opensearch
 
 # Prepare working directory
 # Copy artifacts and configurations to corresponding directories
@@ -57,8 +58,8 @@ RUN ls -l $TEMP_DIR && \
 # Copy working directory to the actual release docker images
 FROM public.ecr.aws/amazonlinux/amazonlinux:2
 
-ARG UID=1001
-ARG GID=1001
+ARG UID=1000
+ARG GID=1000
 ARG OPENSEARCH_HOME=/usr/share/opensearch
 
 # Update packages
@@ -69,6 +70,7 @@ RUN yum update -y && yum install -y tar gzip shadow-utils which && yum clean all
 # Create an opensearch user, group
 RUN groupadd -g $GID opensearch && \
     adduser -u $UID -g $GID -d $OPENSEARCH_HOME opensearch
+    sudo chown -R 1000:1000 /usr/share/opensearch
 
 # Copy from Stage0
 COPY --from=linux_stage_0 --chown=$UID:$GID $OPENSEARCH_HOME $OPENSEARCH_HOME
